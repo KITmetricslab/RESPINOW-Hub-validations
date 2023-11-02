@@ -104,7 +104,7 @@ for f in forecasts:
 all_errors = {}
 
 print("Check files:")
-for file in glob.glob("forecasts/**/**/*.csv"):
+for file in glob.glob("forecasts/**/*.csv", recursive=True):
     print(file)
     errors = check_forecast(file)
     print("Done.")
