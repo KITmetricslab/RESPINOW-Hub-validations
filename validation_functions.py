@@ -98,10 +98,10 @@ def check_mean(df):
     
 def check_duplicates(df):
     df_duplicated = df[df.duplicated(subset = ['location', 'age_group', 'forecast_date', 'target_end_date', 
-                           'target', 'type', 'quantile', 'pathogen'], keep = False)].copy()
+                           'target', 'type', 'quantile'], keep = False)].copy()
     
     df_duplicated.sort_values(['location', 'age_group', 'forecast_date', 'target_end_date', 
-                           'target', 'type', 'quantile', 'pathogen'], inplace = True)
+                           'target', 'type', 'quantile'], inplace = True)
     
     n = len(df_duplicated)
     
