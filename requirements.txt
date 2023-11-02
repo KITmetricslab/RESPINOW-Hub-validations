@@ -1,0 +1,3 @@
+pandas
+urllib3
+PyGithub
