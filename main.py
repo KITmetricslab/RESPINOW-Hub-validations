@@ -103,8 +103,11 @@ for f in forecasts:
 # Run validations on each file that matches the naming convention
 all_errors = {}
 
+print("Check files:")
 for file in glob.glob("forecasts/**/**/*.csv"):
+    print(file)
     errors = check_forecast(file)
+    print("Done.")
     if len(errors) > 0:
         all_errors[os.path.basename(file)] = errors
 
