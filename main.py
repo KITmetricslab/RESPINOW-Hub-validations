@@ -41,6 +41,7 @@ files_changed += [f for f in pr.get_files()]
     
 # Split all files in `files_changed` list into valid forecasts and other files
 forecasts = [file for file in files_changed if pat.match(file.filename) is not None]
+print(forecasts)
 metadatas = [file for file in files_changed if pat_meta.match(file.filename) is not None]
 rawdatas = [file for file in files_changed if file.filename[0:8] == "data-raw"]
 other_files = [file for file in files_changed if (pat.match(file.filename) is None and pat_meta.match(file.filename) is None and file not in rawdatas and file.filename.split('/')[-1] not in ['documentation_members.csv', 'expected_members.csv'])]
