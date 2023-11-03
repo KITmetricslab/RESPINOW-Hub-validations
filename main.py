@@ -102,7 +102,7 @@ for file in glob.glob("forecasts/**/*.csv", recursive=True):
 
 # look for .csv files that dont match pat regex
 for file in other_files:
-    all_errors[file.filename] = ["File is not a valid submission."]
+    all_errors[file.filename] = ["File is not a valid submission, other files were added or changed."]
 
 # Print out errors    
 if len(all_errors) > 0:
