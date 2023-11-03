@@ -10,7 +10,7 @@ LOCATION_CODES = ['DE', 'DE-BB-BE', 'DE-BW', 'DE-BY', 'DE-HE', 'DE-MV', 'DE-NI-H
 
 VALID_QUANTILES = [0.025, 0.1, 0.25, 0.5, 0.75, 0.9, 0.975]
 VALID_TYPES = ['mean', 'quantile']
-VALID_AGE_GROUPS = ['00+', '00-04', '05-14', '15-34', '35-59', '60-79', '80+']
+VALID_AGE_GROUPS = ['00+', '00-04', '05-14', '15-34', '35-59', '60-79', '80+', '60+']
 VALID_TARGETS = [f'{_} week ahead inc case' for _ in range(-4, 5)]
 
 

@@ -9,7 +9,6 @@ import sys
 from validation_functions import *
 
 pat = re.compile(r"submissions/.*/(.+)/\d\d\d\d-\d\d-\d\d-.*\1.csv")
-pat_meta = re.compile(r"metadata/metadata-.*.txt")
 
 token  = os.environ.get('GH_TOKEN')
 # print("Added token")
@@ -42,26 +41,15 @@ files_changed += [f for f in pr.get_files()]
 # Split all files in `files_changed` list into valid forecasts and other files
 forecasts = [file for file in files_changed if pat.match(file.filename) is not None]
 print(forecasts)
-metadatas = [file for file in files_changed if pat_meta.match(file.filename) is not None]
-rawdatas = [file for file in files_changed if file.filename[0:8] == "data-raw"]
-other_files = [file for file in files_changed if (pat.match(file.filename) is None and pat_meta.match(file.filename) is None and file not in rawdatas and file.filename.split('/')[-1] not in ['documentation_members.csv', 'expected_members.csv'])]
+other_files = [file for file in files_changed if file not in forecasts]
 
 
 # IF there are other fiels changed in the PR 
 if len(other_files) > 0 and len(forecasts) > 0:
-    print(f"PR has other files changed too.")
+    print(f"PR contains other files.")
     if pr is not None:
         pr.add_to_labels('other-files-updated')
 
-if len(metadatas) > 0:
-    print(f"PR has metata files changed.")
-    if pr is not None:
-        pr.add_to_labels('metadata-change')
-
-if len(rawdatas) > 0:
-    print(f"PR has raw files changed.")
-    if pr is not None:
-        pr.add_to_labels('added-raw-data')
 # Do not require this as it is done by the PR labeler action.
 if len(forecasts) > 0:
     if pr is not None:
@@ -97,7 +85,7 @@ os.makedirs('forecasts', exist_ok=True)
 for f in forecasts:
     if f.status != "removed":
         # create subdirectory so we know if it's a retrospective submission
-        os.makedirs('forecasts/' + f.filename.rsplit('/', 1)[0], exist_ok=True)   
+        # os.makedirs('forecasts/' + f.filename.rsplit('/', 1)[0], exist_ok=True)   
         urllib.request.urlretrieve(f.raw_url, f"forecasts/{f.filename}")
     
 # Run validations on each file that matches the naming convention
@@ -114,8 +102,7 @@ for file in glob.glob("forecasts/**/*.csv", recursive=True):
 
 # look for .csv files that dont match pat regex
 for file in other_files:
-    if file.filename[:14] == "data-processed" and ".csv" in file.filename:
-        all_errors[file.filename] = ["File seems to violate naming convention."]
+    all_errors[file.filename] = ["File is not a valid submission."]
 
 # Print out errors    
 if len(all_errors) > 0:
