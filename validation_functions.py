@@ -137,7 +137,7 @@ def check_forecast(filepath):
       
     result = check_forecast_date(filepath)
     if result:
-        errors.append(result)
+        errors.extend(result if isinstance(result, list) else [result])
     
     df = pd.read_csv(filepath, parse_dates = ['forecast_date', 'target_end_date'])
     
