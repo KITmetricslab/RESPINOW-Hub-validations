@@ -2,6 +2,8 @@ import os
 import pandas as pd
 import numpy as np
 
+SUBMISSION_PATTERN = re.compile(r"submissions.*/(.+)/(.+)/(.+)/\d\d\d\d-\d\d-\d\d-\1-\2-\3.csv")
+
 VALID_COLUMNS = ['location', 'age_group', 'forecast_date', 'target_end_date', 'target', 
                  'type', 'quantile', 'value']
 
@@ -13,7 +15,10 @@ VALID_TYPES = ['mean', 'quantile']
 VALID_AGE_GROUPS = ['00+', '00-04', '05-14', '15-34', '35-59', '60-79', '80+', '60+']
 VALID_TARGETS = [f'{_} week ahead inc case' for _ in range(-4, 5)]
 
-
+def check_filepath(filepath):
+    if SUBMISSION_PATTERN.match(filepath) == None:
+        return "The file does not follow the naming convention for submissions or is located in the wrong directory."
+      
 def check_forecast_date(filepath):
     try:
         file_forecast_date = pd.to_datetime(os.path.basename(filepath)[:10]).date()
@@ -124,7 +129,11 @@ def check_duplicates(df):
     
 def check_forecast(filepath):
     errors = []
-    
+
+    result = check_filepath(filepath)
+    if result:
+        errors.append(result)
+      
     result = check_forecast_date(filepath)
     if result:
         errors.append(result)
