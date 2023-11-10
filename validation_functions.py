@@ -3,7 +3,7 @@ import re
 import pandas as pd
 import numpy as np
 
-SUBMISSION_PATTERN = re.compile(r"submissions.*/(.+)/(.+)/(.+)/\d\d\d\d-\d\d-\d\d-\1-\2-\3.csv")
+SUBMISSION_PATTERN = re.compile(r"forecasts/submissions.*/(.+)/(.+)/(.+)/\d\d\d\d-\d\d-\d\d-\1-\2-\3.csv")
 
 VALID_COLUMNS = ['location', 'age_group', 'forecast_date', 'target_end_date', 'target', 
                  'type', 'quantile', 'value']
