@@ -5,7 +5,7 @@ import numpy as np
 
 SUBMISSION_PATTERN = re.compile(r"forecasts/submissions.*/(.+)/(.+)/(.+)/\d\d\d\d-\d\d-\d\d-\1-\2-\3.csv")
 
-VALID_COLUMNS = ['location', 'age_group', 'forecast_date', 'target_end_date', 'target', 
+VALID_COLUMNS = ['location', 'age_group', 'forecast_date', 'target_end_date', 'horizon', 
                  'type', 'quantile', 'value']
 
 LOCATION_CODES = ['DE', 'DE-BB-BE', 'DE-BW', 'DE-BY', 'DE-HE', 'DE-MV', 'DE-NI-HB',
@@ -14,7 +14,7 @@ LOCATION_CODES = ['DE', 'DE-BB-BE', 'DE-BW', 'DE-BY', 'DE-HE', 'DE-MV', 'DE-NI-H
 VALID_QUANTILES = [0.025, 0.1, 0.25, 0.5, 0.75, 0.9, 0.975]
 VALID_TYPES = ['mean', 'quantile']
 VALID_AGE_GROUPS = ['00+', '00-04', '05-14', '15-34', '35-59', '60-79', '80+', '60+']
-VALID_TARGETS = [f'{_} week ahead inc case' for _ in range(-4, 5)]
+VALID_HORIZONS = [-3, -2, -1, 0, 1, 2, 3, 4]
 
 def check_filepath(filepath):
     if SUBMISSION_PATTERN.match(filepath) == None:
@@ -52,7 +52,7 @@ def check_column_values(df):
     invalid_values['quantile'] = [_ for _ in df['quantile'].dropna().unique() if _ not in VALID_QUANTILES]
     invalid_values['type'] = [_ for _ in df.type.unique() if _ not in VALID_TYPES]
     invalid_values['age_group'] = [_ for _ in df.age_group.unique() if _ not in VALID_AGE_GROUPS]
-    invalid_values['target'] = [_ for _ in df.target.unique() if _ not in VALID_TARGETS]
+    invalid_values['horizon'] = [_ for _ in df.horizon.unique() if _ not in VALID_HORIZONS]
     
     errors = []
     for key, value in invalid_values.items():
@@ -79,9 +79,9 @@ def check_header(df):
 
 def check_target_dates(df):
     df['invalid_target_date'] = df.apply(lambda x: x.target_end_date != x.forecast_date + 
-                                         pd.Timedelta(weeks = int(x.target.split(' ')[0])), axis = 1)
+                                         pd.Timedelta(weeks = x.horizon, days = -4), axis = 1)
     
-    invalid_target_dates = df.loc[df.invalid_target_date, ['forecast_date', 'target_end_date', 'target']].drop_duplicates()
+    invalid_target_dates = df.loc[df.invalid_target_date, ['forecast_date', 'target_end_date', 'horizon']].drop_duplicates()
     if len(invalid_target_dates) > 0:
         error = 'The following target_end_dates are wrong:\n\n' + invalid_target_dates.to_string(index = False)
         return error
@@ -107,10 +107,10 @@ def check_mean(df):
     
 def check_duplicates(df):
     df_duplicated = df[df.duplicated(subset = ['location', 'age_group', 'forecast_date', 'target_end_date', 
-                           'target', 'type', 'quantile'], keep = False)].copy()
+                           'horizon', 'type', 'quantile'], keep = False)].copy()
     
     df_duplicated.sort_values(['location', 'age_group', 'forecast_date', 'target_end_date', 
-                           'target', 'type', 'quantile'], inplace = True)
+                           'horizon', 'type', 'quantile'], inplace = True)
     
     n = len(df_duplicated)
     
@@ -119,7 +119,7 @@ def check_duplicates(df):
         return error
 
 def check_quantiles(df):
-    df.loc[df.type != 'mean', 'no_quantiles'] = df[df.type != 'mean'].groupby(['location', 'age_group', 'target', 
+    df.loc[df.type != 'mean', 'no_quantiles'] = df[df.type != 'mean'].groupby(['location', 'age_group', 'horizon', 
                                                                            'target_end_date'])['quantile'].transform('nunique')
     
     # note that we've already checked that no invalid quantiles are present
@@ -130,7 +130,7 @@ def check_quantiles(df):
     
     if (len(incomplete_quantiles) > 0) and not (only_mean or only_median):
         error = 'Not all quantiles were provided in the following setting(s):\n\n' + \
-            incomplete_quantiles.groupby(['location', 'age_group', 'target', 'target_end_date']
+            incomplete_quantiles.groupby(['location', 'age_group', 'horizon', 'target_end_date']
                                         )['quantile'].unique().to_string()
         return error
     
