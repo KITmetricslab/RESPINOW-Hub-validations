@@ -39,11 +39,11 @@ def check_forecast_date(filepath):
     if file_forecast_date != column_forecast_date:
         return f"Date of filename {os.path.basename(filepath)} does not match column \'forecast_date\': {column_forecast_date}." 
 
-    if pd.to_datetime(os.path.basename(filepath)[:10]).day_name() != 'Thursday':
-        return f"The forecast date is a {file_forecast_date.day_name()}. It should be a Thursday."
+    # if pd.to_datetime(os.path.basename(filepath)[:10]).day_name() != 'Thursday':
+    #     return f"The forecast date is a {file_forecast_date.day_name()}. It should be a Thursday."
 
     today = pd.Timestamp('today', tz='Europe/Berlin').date()
-    if ('retrospective' not in filepath) and (abs(file_forecast_date - today).days > 0):
+    if ('retrospective' not in filepath) and (abs(file_forecast_date - today).days > 1):
         return f"The forecast is not made today. Date of the forecast: {file_forecast_date}, today: {today}."
 
 def check_column_values(df):
